@@ -12,20 +12,24 @@
 <body>
 
     <main>
-        <p id="aware">search & wait for result few more seconds...</p>
-        <div class="searchBar">
-            <input id="userInput" type="text" placeholder="Enter first later of meal or word for search">
-            <button id="btn">Search</button>
+        <div class="box">
+            <p id="aware">search & wait for result few more seconds...</p>
+            <div class="searchBar">
+                <input id="userInput" type="text" placeholder="Enter first later of meal or word for search">
+                <button id="btn">Search</button>
+            </div>
+
+            <h3 id="errorInfo"></h3>
+            <div id="infoAboutMealContainer">
+
+            </div>
+
+
+            <div id="mealContainer">
+
+            </div>
         </div>
 
-        <div id="infoAboutMealContainer">
-
-        </div>
-
-
-        <div id="mealContainer">
-
-        </div>
     </main>
 
     <script>
@@ -34,7 +38,7 @@
         const button = document.getElementById('btn');
         const mealContainer = document.getElementById('mealContainer');
         const infoAboutMealContainer = document.getElementById('infoAboutMealContainer');
-        //ealContainer.innerHTML = null;
+        const errorTag = document.getElementById('errorInfo');
 
         // button click event
         button.addEventListener('click', () => {
@@ -45,26 +49,28 @@
         });
 
         // api calling function
-        const dataLoadFromServer = inputValue => {
+        const dataLoadFromServer = async inputValue => {
 
-            const URL1 = `https://www.themealdb.com/api/json/v1/1/search.php?f=${inputValue}`;
-            const URL2 = `https://www.themealdb.com/api/json/v1/1/search.php?s=${inputValue}`;
+            const URL = `https://www.themealdb.com/api/json/v1/1/search.php?s=${inputValue}`;
 
-            fetch(URL2)
-                .then(response => response.json())
-                .then(data => {
-                    //console.log(data);
-                    displayFromServerData(data);
-                })
-                .catch(error => console.log(error))
+            try {
+                const res = await fetch(URL);
+                const data = await res.json();
+                displayFromServerData(data.meals);
+            } catch (error) {
+                displayError("Please give valid word for meal...")
+            }
+
         }
+
 
         // api fetching data show to HTML
         const displayFromServerData = data => {
 
             mealContainer.innerHTML = null;
+            errorTag.innerText = '';
 
-            data.meals.forEach(element => {
+            data.forEach(element => {
 
                 const div = document.createElement('div');
                 div.className = 'singleMeal';
@@ -91,85 +97,69 @@
             });
         }
 
+
         // after clicking... show info...
         const displayAboutMeal = (data, mealName) => {
 
             infoAboutMealContainer.innerHTML = null;
-            //console.log("displayAboutMeal : ", data);
 
-            // create elements
-            const div = document.createElement('div');
-            div.className = 'aboutMeal';
-            div.style.display = 'block';
+            const ingredient = [
+                'strIngredient1', 'strIngredient2', 'strIngredient3', 'strIngredient4', 'strIngredient5',
+                'strIngredient6', 'strIngredient7', 'strIngredient8', 'strIngredient9', 'strIngredient10',
+                'strIngredient11', 'strIngredient12', 'strIngredient13', 'strIngredient14', 'strIngredient15',
+                'strIngredient16', 'strIngredient17', 'strIngredient18', 'strIngredient19', 'strIngredient20'
+            ]
 
-            const img = document.createElement('img');
-            const h2 = document.createElement('h2');
-            const p = document.createElement('p');
-            const ul = document.createElement('ul');
-
-            const li1 = document.createElement('li');
-            const li2 = document.createElement('li');
-            const li3 = document.createElement('li');
-            const li4 = document.createElement('li');
-            const li5 = document.createElement('li');
-            const li6 = document.createElement('li');
-            const li7 = document.createElement('li');
-            const li8 = document.createElement('li');
-            const li9 = document.createElement('li');
-            const li10 = document.createElement('li');
-
-
-            data.meals.forEach(element => {
+            data.forEach(element => {
 
                 if (element.strMeal === mealName) {
 
+                    // DOM Create
+                    const div = document.createElement('div');
+                    div.className = 'aboutMeal';
+                    div.style.display = 'block';
+
+                    const img = document.createElement('img');
+                    const h2 = document.createElement('h2');
+                    const p = document.createElement('p');
+                    const ul = document.createElement('ul');
+
+                    // JSON to HTML 
                     img.src = element.strMealThumb;
                     h2.innerText = element.strMeal;
                     p.innerText = "Ingredient";
 
-                    // sorry for this Bangla Style
-                    // i touch my limit... My mind is going to hang for resolve this logic
-                    // so at last i apply this analog approach... 
-                    li1.innerText = element.strIngredient1;
-                    li2.innerText = element.strIngredient2;
-                    li3.innerText = element.strIngredient3;
-                    li4.innerText = element.strIngredient4;
-                    li5.innerText = element.strIngredient5;
-                    li6.innerText = element.strIngredient6;
-                    li7.innerText = element.strIngredient7;
-                    li8.innerText = element.strIngredient8;
-                    li9.innerText = element.strIngredient9;
-                    li10.innerText = element.strIngredient10;
+                    for (const [key, value] of Object.entries(element)) {
 
-                    ul.appendChild(li1)
-                    ul.appendChild(li2)
-                    ul.appendChild(li3)
-                    ul.appendChild(li4)
-                    ul.appendChild(li5)
-                    ul.appendChild(li6)
-                    ul.appendChild(li7)
-                    ul.appendChild(li8)
-                    ul.appendChild(li9)
-                    ul.appendChild(li10)
+                        if (ingredient.includes(key) && value !== '') {
 
-                    //var newObj = Object.entries(data.meals[0]).slice(9, 20)
-                    //console.log(newObj);
-                    //console.log(typeof (newObj));
-                    //li.innerText = newObj[i];
-                    //li.innerText = strIngredient1;
-                    //var keys = Object.keys(data.meals[i]);
-                    //console.log(keys);
-                    //console.log('strIngredient8' in data.meals[0]);
+                            const li = document.createElement('li');
+                            // JSON to HTML 
+                            li.innerText = value;
+                            ul.appendChild(li)
+
+                            //console.log(`${key} : ${value}`);
+                        }
+
+                    }
+
+                    // DOM Update
+                    div.appendChild(img);
+                    div.appendChild(h2);
+                    div.appendChild(p);
+                    div.appendChild(ul);
+                    infoAboutMealContainer.appendChild(div)
                 }
-            });
-            div.appendChild(img);
-            div.appendChild(h2);
-            div.appendChild(p);
-            div.appendChild(ul);
-            infoAboutMealContainer.appendChild(div)
+
+            });            
         }
 
-    // END of the script
+
+        const displayError = error => {
+            errorTag.innerText = error;
+        }
+
+        // END of the script
     </script>
 </body>
 
